@@ -12,6 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+
+"""
+The original file described below has been modified to allow multi-label classification.
+Modified by: Radek Bartyzal
+More info at: https://github.com/BartyzalRadek/Multi-label-Inception-net
+"""
+
 """Simple transfer learning with an Inception v3 architecture model which
 displays summaries in TensorBoard.
 
