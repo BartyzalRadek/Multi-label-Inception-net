@@ -4,6 +4,8 @@ Modified `retrain.py` script to allow multi-label image classification using pre
 ### Requirements
 TensorFlow 0.12.0-rc1 : https://github.com/tensorflow/tensorflow/releases/tag/0.12.0-rc1
 
+All the training images must be in JPEG format.
+
 ### Usage
 
 #### Prepare training images
