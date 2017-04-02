@@ -28,5 +28,13 @@ Simply run the appropriate command from `retrain.sh`.
 #### Testing resulting model
 Run: `python label_image.py <image_name>` from project root.
 
+#### Visualize training progress
+After the retraining is done you can view the logs by running:
+
+`tensorboard --logdir retrain_logs`
+
+and navigating to http://127.0.0.1:6006/ in your browser.
+
+
 ### Additional info
 If you want to try the original Inception net retraining, here is an excellent CodeLab: https://codelabs.developers.google.com/codelabs/tensorflow-for-poets
