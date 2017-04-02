@@ -24,6 +24,7 @@ You can change the path to this folder by editing global variable IMAGE_LABELS_D
 
 #### Retraining the model
 Simply run the appropriate command from `retrain.sh`.
+Feel free to play with the parameters.
 
 #### Testing resulting model
 Run: `python label_image.py <image_name>` from project root.
