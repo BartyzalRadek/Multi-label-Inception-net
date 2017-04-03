@@ -41,4 +41,7 @@ and navigating to http://127.0.0.1:6006/ in your browser.
 
 
 ### Additional info
+Detailed explanation of changes: 
+https://medium.com/@bartyrad/multi-label-image-classification-with-inception-net-cbb2ee538e30
+
 If you want to try the original Inception net retraining, here is an excellent CodeLab: https://codelabs.developers.google.com/codelabs/tensorflow-for-poets
