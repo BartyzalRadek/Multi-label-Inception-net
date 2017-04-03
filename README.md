@@ -2,6 +2,10 @@
 Modified `retrain.py` script to allow multi-label image classification using pretrained [Inception net](https://github.com/tensorflow/models/tree/master/inception).
 
 The `label_image.py` has also been slightly modified to write out the resulting class percentages into `results.txt`. 
+
+Detailed explanation of all the changes and reasons behind them: 
+https://medium.com/@bartyrad/multi-label-image-classification-with-inception-net-cbb2ee538e30
+
 ### Requirements
 [TensorFlow 0.12.0-rc1](https://github.com/tensorflow/tensorflow/releases/tag/0.12.0-rc1)
 
@@ -41,7 +45,4 @@ and navigating to http://127.0.0.1:6006/ in your browser.
 
 
 ### Additional info
-Detailed explanation of changes: 
-https://medium.com/@bartyrad/multi-label-image-classification-with-inception-net-cbb2ee538e30
-
 If you want to try the original Inception net retraining, here is an excellent CodeLab: https://codelabs.developers.google.com/codelabs/tensorflow-for-poets
