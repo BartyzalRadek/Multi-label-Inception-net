@@ -12,13 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
-"""
-The original file described below has been modified to allow multi-label classification.
-Modified by: Radek Bartyzal
-More info at: https://github.com/BartyzalRadek/Multi-label-Inception-net
-"""
-
 """Simple transfer learning with an Inception v3 architecture model which
 displays summaries in TensorBoard.
 
@@ -178,6 +171,8 @@ MAX_NUM_IMAGES_PER_CLASS = 2 ** 27 - 1  # ~134M
 IMAGE_LABELS_DIR = 'image_labels_dir'
 # Contains cached ground_truth vectors to prevent calculating them again and again
 CACHED_GROUND_TRUTH_VECTORS = {}
+# Contains list of all labels, each label is on a separate line, just like in image_label files
+ALL_LABELS_FILE = "labels.txt"
 
 
 def create_image_lists(image_dir, testing_percentage, validation_percentage):
@@ -545,10 +540,26 @@ def cache_bottlenecks(sess, image_lists, image_dir, bottleneck_dir,
         if how_many_bottlenecks % 100 == 0:
           print(str(how_many_bottlenecks) + ' bottleneck files created.')
 
+def get_ground_truth(labels_file, labels, class_count):
+    if labels_file in CACHED_GROUND_TRUTH_VECTORS.keys():
+        ground_truth = CACHED_GROUND_TRUTH_VECTORS[labels_file]
+    else:
+        with open(labels_file) as f:
+            true_labels = f.read().splitlines()
+        ground_truth = np.zeros(class_count, dtype=np.float32)
+
+        idx = 0
+        for label in labels:
+            if label in true_labels:
+                ground_truth[idx] = 1.0
+            idx += 1
+        CACHED_GROUND_TRUTH_VECTORS[labels_file] = ground_truth
+
+    return ground_truth
 
 def get_random_cached_bottlenecks(sess, image_lists, how_many, category,
                                   bottleneck_dir, image_dir, jpeg_data_tensor,
-                                  bottleneck_tensor):
+                                  bottleneck_tensor, labels):
   """Retrieves bottleneck values for cached images.
 
   If no distortions are being applied, this function can retrieve the cached
@@ -566,15 +577,18 @@ def get_random_cached_bottlenecks(sess, image_lists, how_many, category,
     images.
     jpeg_data_tensor: The layer to feed jpeg image data into.
     bottleneck_tensor: The bottleneck output layer of the CNN graph.
+    labels: All possible labels loaded from file labels.txt.
 
   Returns:
     List of bottleneck arrays and their corresponding ground truths.
   """
-  class_count = len(image_lists.keys())
+  # class_count = len(image_lists.keys())
+  class_count = len(labels)
   bottlenecks = []
   ground_truths = []
   for unused_i in range(how_many):
-    label_index = random.randrange(class_count)
+    # label_index = random.randrange(class_count)
+    label_index = 0 # there is only one folder with images = 'multi-label'
     label_name = list(image_lists.keys())[label_index]
     image_index = random.randrange(MAX_NUM_IMAGES_PER_CLASS + 1)
     bottleneck = get_or_create_bottleneck(sess, image_lists, label_name,
@@ -582,20 +596,8 @@ def get_random_cached_bottlenecks(sess, image_lists, how_many, category,
                                           bottleneck_dir, jpeg_data_tensor,
                                           bottleneck_tensor)
 
-    labels_file = get_image_labels_path(image_lists,label_name,image_index, IMAGE_LABELS_DIR, category)
-    if labels_file in CACHED_GROUND_TRUTH_VECTORS.keys():
-        ground_truth = CACHED_GROUND_TRUTH_VECTORS[labels_file]
-    else:
-        with open(labels_file) as f:
-            true_labels = f.read().splitlines()
-        ground_truth = np.zeros(class_count, dtype=np.float32)
-
-        idx = 0
-        for label in image_lists.keys():
-            if label in true_labels:
-                ground_truth[idx] = 1.0
-            idx += 1
-        CACHED_GROUND_TRUTH_VECTORS[labels_file] = ground_truth
+    labels_file = get_image_labels_path(image_lists, label_name, image_index, IMAGE_LABELS_DIR, category)
+    ground_truth = get_ground_truth(labels_file, labels, class_count)
 
     bottlenecks.append(bottleneck)
     ground_truths.append(ground_truth)
@@ -604,7 +606,7 @@ def get_random_cached_bottlenecks(sess, image_lists, how_many, category,
 
 def get_random_distorted_bottlenecks(
     sess, image_lists, how_many, category, image_dir, input_jpeg_tensor,
-    distorted_image, resized_input_tensor, bottleneck_tensor):
+    distorted_image, resized_input_tensor, bottleneck_tensor, labels):
   """Retrieves bottleneck values for training images, after distortions.
 
   If we're training with distortions like crops, scales, or flips, we have to
@@ -625,15 +627,16 @@ def get_random_distorted_bottlenecks(
     distorted_image: The output node of the distortion graph.
     resized_input_tensor: The input node of the recognition graph.
     bottleneck_tensor: The bottleneck output layer of the CNN graph.
+    labels: All possible labels loaded from file labels.txt.
 
   Returns:
     List of bottleneck arrays and their corresponding ground truths.
   """
-  class_count = len(image_lists.keys())
+  class_count = len(labels)
   bottlenecks = []
   ground_truths = []
   for unused_i in range(how_many):
-    label_index = random.randrange(class_count)
+    label_index = 0 # there is only one folder with images = 'multi-label'
     label_name = list(image_lists.keys())[label_index]
     image_index = random.randrange(MAX_NUM_IMAGES_PER_CLASS + 1)
     image_path = get_image_path(image_lists, label_name, image_index, image_dir,
@@ -649,8 +652,10 @@ def get_random_distorted_bottlenecks(
     bottleneck = run_bottleneck_on_image(sess, distorted_image_data,
                                          resized_input_tensor,
                                          bottleneck_tensor)
-    ground_truth = np.zeros(class_count, dtype=np.float32)
-    ground_truth[label_index] = 1.0
+
+    labels_file = get_image_labels_path(image_lists, label_name, image_index, IMAGE_LABELS_DIR, category)
+    ground_truth = get_ground_truth(labels_file, labels, class_count)
+
     bottlenecks.append(bottleneck)
     ground_truths.append(ground_truth)
   return bottlenecks, ground_truths
@@ -848,8 +853,6 @@ def add_evaluation_step(result_tensor, ground_truth_tensor):
   Returns:
     Nothing.
   """
-  zero = tf.constant(0, dtype=tf.float32)
-
   with tf.name_scope('accuracy'):
     with tf.name_scope('correct_prediction'):
       # tf.argmax(result_tensor, 1) = return index of maximal value (= 1 in a 1-of-N encoding vector) in each row (axis = 1)
@@ -857,16 +860,10 @@ def add_evaluation_step(result_tensor, ground_truth_tensor):
       # correct_prediction = tf.equal(tf.argmax(result_tensor, 1), \
       #   tf.argmax(ground_truth_tensor, 1))
 
-      # tf.equal(result_tensor, zero) returns a tensor of same dimensions as result_tensor filled with
-      # True/False values indicating whether the element equals zero
-      # result_tensor is composed only from zeroes and ones = it doesn't matter if we check for zeroes or ones,
-      # but checking for zero should be faster
-
       # ground_truth is not a binary tensor, it contains the probabilities of each label = we need to tf.round() it
       # to acquire a binary tensor allowing comparison by tf.equal()
       # See: http://stackoverflow.com/questions/39219414/in-tensorflow-how-can-i-get-nonzero-values-and-their-indices-from-a-tensor-with
 
-      # correct_prediction = tf.equal(tf.equal(tf.round(result_tensor), zero),tf.equal(tf.round(ground_truth_tensor), zero))
       correct_prediction = tf.equal(tf.round(result_tensor), ground_truth_tensor)
     with tf.name_scope('accuracy'):
       # Mean accuracy over all labels:
@@ -890,13 +887,37 @@ def main(_):
   # Look at the folder structure, and create lists of all the images.
   image_lists = create_image_lists(FLAGS.image_dir, FLAGS.testing_percentage,
                                    FLAGS.validation_percentage)
-  class_count = len(image_lists.keys())
+
+  if len(image_lists.keys()) == 0:
+      print('Folder containing training images has not been found inside {} directory. \n'
+            'Put all the training images into '
+            'one folder inside {} directory and delete everything else inside the {} directory.'
+            .format(FLAGS.image_dir, FLAGS.image_dir, FLAGS.image_dir))
+      return -1
+
+  if len(image_lists.keys()) > 1:
+      print('More than one folder found inside {} directory. \n'
+            'In order to prevent validation issues, put all the training images into '
+            'one folder inside {} directory and delete everything else inside the {} directory.'
+            .format(FLAGS.image_dir, FLAGS.image_dir, FLAGS.image_dir))
+      return -1
+
+  if not os.path.isfile(ALL_LABELS_FILE):
+      print('File {} containing all possible labels (= classes) does not exist.\n'
+            'Create it in project root and put each possible label on new line, '
+            'it is exactly the same as creating an image_label file for image '
+            'that is in all the possible classes.'.format(ALL_LABELS_FILE))
+      return -1
+
+  with open(ALL_LABELS_FILE) as f:
+      labels = f.read().splitlines()
+  class_count = len(labels)
+
   if class_count == 0:
-    print('No valid folders of images found at ' + FLAGS.image_dir)
+    print('No valid labels inside file {} that should contain all possible labels (= classes).'.format(ALL_LABELS_FILE))
     return -1
   if class_count == 1:
-    print('Only one valid folder of images found at ' + FLAGS.image_dir +
-          ' - multiple classes are needed for classification.')
+    print('Only one valid label found inside {} - multiple classes are needed for classification.'.format(ALL_LABELS_FILE))
     return -1
 
   # See if the command-line flags mean we're applying any distortions.
@@ -918,7 +939,7 @@ def main(_):
 
   # Add the new layer that we'll be training.
   (train_step, cross_entropy, bottleneck_input, ground_truth_input,
-   final_tensor) = add_final_training_ops(len(image_lists.keys()),
+   final_tensor) = add_final_training_ops(class_count,
                                           FLAGS.final_tensor_name,
                                           bottleneck_tensor)
 
@@ -948,7 +969,7 @@ def main(_):
       train_bottlenecks, train_ground_truth = get_random_cached_bottlenecks(
           sess, image_lists, FLAGS.train_batch_size, 'training',
           FLAGS.bottleneck_dir, FLAGS.image_dir, jpeg_data_tensor,
-          bottleneck_tensor)
+          bottleneck_tensor, labels)
     # Feed the bottlenecks and ground truth into the graph, and run a training
     # step. Capture training summaries for TensorBoard with the `merged` op.
     train_summary, _ = sess.run([merged, train_step],
@@ -971,7 +992,7 @@ def main(_):
           get_random_cached_bottlenecks(
               sess, image_lists, FLAGS.validation_batch_size, 'validation',
               FLAGS.bottleneck_dir, FLAGS.image_dir, jpeg_data_tensor,
-              bottleneck_tensor))
+              bottleneck_tensor, labels))
       # Run a validation step and capture training summaries for TensorBoard
       # with the `merged` op.
       validation_summary, validation_accuracy = sess.run(
@@ -987,7 +1008,7 @@ def main(_):
   test_bottlenecks, test_ground_truth = get_random_cached_bottlenecks(
       sess, image_lists, FLAGS.test_batch_size, 'testing',
       FLAGS.bottleneck_dir, FLAGS.image_dir, jpeg_data_tensor,
-      bottleneck_tensor)
+      bottleneck_tensor, labels)
   test_accuracy = sess.run(
       evaluation_step,
       feed_dict={bottleneck_input: test_bottlenecks,

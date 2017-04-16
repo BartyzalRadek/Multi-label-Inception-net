@@ -13,12 +13,18 @@ All the training images must be in JPEG format.
 
 ### Usage
 
+#### Update
+This version has been update to solve possible problems with calculating evaluation accuracies.
+
+Usage change: 
+Put all the training images in one folder and create a file `labels.txt` inside project root containing all the possible labels.
+
 #### Prepare training images
 1. Create a directory for each label inside the `images` folder.
-3. Take each of your training images and put them in folders corresponding to their respective categories. For example: image `car.jpg` is in two categories {`car`, `accident`} therefore it is going to be located in `images/car` and `images/accident` folders.
+2. Put all the training images into **one** folder inside `images` directory.
 
 #### Prepare labels for each training image
-We need to prepare files with correct labels for each image.
+1. We need to prepare files with correct labels for each image.
 Name the files `<image_file_name.jpg>.txt` = if you have an image `car.jpg` the accompanying file will be `car.jpg.txt`. 
 
 Put each true label on a new line inside the file, nothing else.
@@ -26,12 +32,16 @@ Put each true label on a new line inside the file, nothing else.
 Now copy all the created files into the `image_labels_dir` directory located in project root.
 You can change the path to this folder by editing global variable IMAGE_LABELS_DIR in `retrain.py`
 
+2. Create file `labels.txt` in project root and fill it with all the possible labels. 
+Each label on a new line, nothing else.
+Just like an `image_label` file for an image that is in all the possible categories.
+
 #### Retraining the model
 Simply run the appropriate command from `retrain.sh`.
 Feel free to play with the parameters.
 
 **Disclaimer**: If you try to retrain the model with just the single example image `car.jpg`, it is going to crash.
-Include at least 20 images in each folder inside `images` directory.
+Include at least 20 images in folder inside `images` directory.
 
 #### Testing resulting model
 Run: `python label_image.py <image_name>` from project root.
