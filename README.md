@@ -20,8 +20,7 @@ Usage change:
 Put all the training images in one folder and create a file `labels.txt` inside project root containing all the possible labels.
 
 #### Prepare training images
-1. Create a directory for each label inside the `images` folder.
-2. Put all the training images into **one** folder inside `images` directory.
+1. Put all the training images into **one** folder inside `images` directory.
 
 #### Prepare labels for each training image
 1. We need to prepare files with correct labels for each image.
