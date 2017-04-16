@@ -22,18 +22,20 @@ Put all the training images in one folder and create a file `labels.txt` inside 
 #### Prepare training images
 1. Put all the training images into **one** folder inside `images` directory.
 
+   The name of the folder does not matter. I use `multi-label`.
+
 #### Prepare labels for each training image
 1. We need to prepare files with correct labels for each image.
-Name the files `<image_file_name.jpg>.txt` = if you have an image `car.jpg` the accompanying file will be `car.jpg.txt`. 
+   Name the files `<image_file_name.jpg>.txt` = if you have an image `car.jpg` the accompanying file will be `car.jpg.txt`. 
 
-Put each true label on a new line inside the file, nothing else.
+   Put each true label on a new line inside the file, nothing else.
 
-Now copy all the created files into the `image_labels_dir` directory located in project root.
-You can change the path to this folder by editing global variable IMAGE_LABELS_DIR in `retrain.py`
+   Now copy all the created files into the `image_labels_dir` directory located in project root.
+   You can change the path to this folder by editing global variable IMAGE_LABELS_DIR in `retrain.py`
 
 2. Create file `labels.txt` in project root and fill it with all the possible labels. 
-Each label on a new line, nothing else.
-Just like an `image_label` file for an image that is in all the possible categories.
+   Each label on a new line, nothing else.
+   Just like an `image_label` file for an image that is in all the possible categories.
 
 #### Retraining the model
 Simply run the appropriate command from `retrain.sh`.
