@@ -35,7 +35,7 @@ Put all the training images in one folder and create a file `labels.txt` inside 
 
 2. Create file `labels.txt` in project root and fill it with all the possible labels. 
    Each label on a new line, nothing else.
-   Just like an `image_label` file for an image that is in all the possible categories.
+   Just like an `image_label` file for an image that is in all the possible classes.
 
 #### Retraining the model
 Simply run the appropriate command from `retrain.sh`.
