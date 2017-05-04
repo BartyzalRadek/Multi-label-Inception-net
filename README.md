@@ -7,7 +7,11 @@ Detailed explanation of all the changes and reasons behind them:
 https://medium.com/@bartyrad/multi-label-image-classification-with-inception-net-cbb2ee538e30
 
 ### Requirements
-[TensorFlow 0.12.0-rc1](https://github.com/tensorflow/tensorflow/releases/tag/0.12.0-rc1)
+[TensorFlow 0.12.0-rc1](https://github.com/tensorflow/tensorflow/releases/tag/0.12.0-rc1) - use branch `master`
+
+or
+
+[TensorFlow 1.1.0](https://github.com/tensorflow/tensorflow/releases/tag/v1.1.0) - use branch `tensorflow_1.0` - thanks [moh3th1](https://github.com/moh3th1)
 
 All the training images must be in JPEG format.
 
