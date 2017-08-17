@@ -61,3 +61,6 @@ and navigating to http://127.0.0.1:6006/ in your browser.
 
 ### Additional info
 If you want to try the original Inception net retraining, here is an excellent CodeLab: https://codelabs.developers.google.com/codelabs/tensorflow-for-poets
+
+#### License
+Apache License, Version 2.0
