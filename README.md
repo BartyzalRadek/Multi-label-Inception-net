@@ -1,5 +1,5 @@
 # Multi-label-Inception-net
-Modified `retrain.py` script to allow multi-label image classification using pretrained [Inception net](https://github.com/tensorflow/models/tree/master/inception).
+Modified `retrain.py` script to allow multi-label image classification using pretrained [Inception net](https://github.com/tensorflow/models/tree/master/research/inception).
 
 The `label_image.py` has also been slightly modified to write out the resulting class percentages into `results.txt`. 
 
