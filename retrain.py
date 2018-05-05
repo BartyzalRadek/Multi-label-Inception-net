@@ -157,6 +157,7 @@ tf.app.flags.DEFINE_integer(
 # need to update these to reflect the values in the network you're using.
 # pylint: disable=line-too-long
 DATA_URL = 'http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz'
+DATA_URL = 'http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz'
 # pylint: enable=line-too-long
 BOTTLENECK_TENSOR_NAME = 'pool_3/_reshape:0'
 BOTTLENECK_TENSOR_SIZE = 2048
@@ -772,13 +773,13 @@ def variable_summaries(var, name):
   """Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""
   with tf.name_scope('summaries'):
     mean = tf.reduce_mean(var)
-    tf.scalar_summary('mean/' + name, mean)
+    tf.summary.scalar('mean/' + name, mean)
     with tf.name_scope('stddev'):
       stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))
-    tf.scalar_summary('stddev/' + name, stddev)
-    tf.scalar_summary('max/' + name, tf.reduce_max(var))
-    tf.scalar_summary('min/' + name, tf.reduce_min(var))
-    tf.histogram_summary(name, var)
+    tf.summary.scalar('stddev/' + name, stddev)
+    tf.summary.scalar('max/' + name, tf.reduce_max(var))
+    tf.summary.scalar('min/' + name, tf.reduce_min(var))
+    tf.summary.histogram(name, var)
 
 
 def add_final_training_ops(class_count, final_tensor_name, bottleneck_tensor):
@@ -822,17 +823,17 @@ def add_final_training_ops(class_count, final_tensor_name, bottleneck_tensor):
       variable_summaries(layer_biases, layer_name + '/biases')
     with tf.name_scope('Wx_plus_b'):
       logits = tf.matmul(bottleneck_input, layer_weights) + layer_biases
-      tf.histogram_summary(layer_name + '/pre_activations', logits)
+      tf.summary.histogram(layer_name + '/pre_activations', logits)
 
   final_tensor = tf.nn.sigmoid(logits, name=final_tensor_name)
-  tf.histogram_summary(final_tensor_name + '/activations', final_tensor)
+  tf.summary.histogram(final_tensor_name + '/activations', final_tensor)
 
   with tf.name_scope('cross_entropy'):
     cross_entropy = tf.nn.sigmoid_cross_entropy_with_logits(
-      logits, ground_truth_input)
+      logits=logits, labels=ground_truth_input)
     with tf.name_scope('total'):
       cross_entropy_mean = tf.reduce_mean(cross_entropy)
-    tf.scalar_summary('cross entropy', cross_entropy_mean)
+    tf.summary.scalar('cross entropy', cross_entropy_mean)
 
   with tf.name_scope('train'):
     train_step = tf.train.GradientDescentOptimizer(FLAGS.learning_rate).minimize(
@@ -869,7 +870,7 @@ def add_evaluation_step(result_tensor, ground_truth_tensor):
       # Mean accuracy over all labels:
       # http://stackoverflow.com/questions/37746670/tensorflow-multi-label-accuracy-calculation
       evaluation_step = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-    tf.scalar_summary('accuracy', evaluation_step)
+    tf.summary.scalar('accuracy', evaluation_step)
   return evaluation_step
 
 
@@ -947,10 +948,10 @@ def main(_):
   evaluation_step = add_evaluation_step(final_tensor, ground_truth_input)
 
   # Merge all the summaries and write them out to /tmp/retrain_logs (by default)
-  merged = tf.merge_all_summaries()
-  train_writer = tf.train.SummaryWriter(FLAGS.summaries_dir + '/train',
+  merged = tf.summary.merge_all()
+  train_writer = tf.summary.FileWriter(FLAGS.summaries_dir + '/train',
                                         sess.graph)
-  validation_writer = tf.train.SummaryWriter(FLAGS.summaries_dir + '/validation')
+  validation_writer = tf.summary.FileWriter(FLAGS.summaries_dir + '/validation')
 
   # Set up all our weights to their initial default values.
   init = tf.initialize_all_variables()
