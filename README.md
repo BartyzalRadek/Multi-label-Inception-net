@@ -7,7 +7,7 @@ Detailed explanation of all the changes and reasons behind them:
 https://medium.com/@bartyrad/multi-label-image-classification-with-inception-net-cbb2ee538e30
 
 ### Requirements
-[TensorFlow 0.12.0-rc1](https://github.com/tensorflow/tensorflow/releases/tag/0.12.0-rc1) - use branch `master`
+[TensorFlow 1.8.0](https://github.com/tensorflow/tensorflow/releases/tag/v1.8.0) - use branch `master`
 
 or
 
