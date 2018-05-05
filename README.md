@@ -6,7 +6,7 @@ The `label_image.py` has also been slightly modified to write out the resulting 
 Detailed explanation of all the changes and reasons behind them: 
 https://medium.com/@bartyrad/multi-label-image-classification-with-inception-net-cbb2ee538e30
 
-### Requirements
+### Works on:
 [TensorFlow 1.8.0](https://github.com/tensorflow/tensorflow/releases/tag/v1.8.0) - use branch `master`
 
 or
